@@ -13,12 +13,26 @@ const selectors = {
   COMMENT: '.Comment.top-level',
   HEADER: '#header'
 }
+const legacySelectors = {
+  MAIN: '#siteTable',
+  POST: '.entry',
+  HEADER: null,
+  COMMENT: '.sitetable.nestedlisting > .comment:not(.deleted)',
+}
 const keys = {
   UP: 87, // W
   DOWN: 69 // E
 }
 let scrolling = false;
 let scrollSpeed = speeds.MEDIUM;
+
+function init() {
+  if (document.querySelector(legacySelectors.MAIN)) {
+    selectors.POST = legacySelectors.POST
+    selectors.COMMENT = legacySelectors.COMMENT
+    selectors.HEADER = legacySelectors.HEADER
+  }
+}
 
 // http://gizma.com/easing/#quad3
 function easeInOutQuad(n,u,e,t){return n/=t/2,1>n?n*n*(e/2)+u:(--n,(n*(n-2)-1)*(-e/2)+u)}
@@ -136,3 +150,5 @@ document.addEventListener('keydown', (event) => {
   else if (event.keyCode === keys.DOWN)
     goToNextParent(directions.DOWN);
 });
+
+init()
