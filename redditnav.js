@@ -2,14 +2,21 @@ const directions = {
   UP: 'up',
   DOWN: 'down'
 };
-
 const speeds = {
   SLOW: 2,
   MEDIUM: 1,
   FAST: 0.5,
   INSTANT: 0
-};
-
+}
+const selectors = {
+  POST: '.Post',
+  COMMENT: '.Comment.top-level',
+  HEADER: '#header'
+}
+const keys = {
+  UP: 87, // W
+  DOWN: 69 // E
+}
 let scrolling = false;
 let scrollSpeed = speeds.MEDIUM;
 
@@ -38,10 +45,17 @@ function animateScrollTo(position, duration) {
 }
 
 function getNodePos(node, direction) {
-  const topOfNode = node.getBoundingClientRect().top +
-    (document.documentElement.scrollTop || document.body.scrollTop || window.scrollY);
+  let topOfNode = node.getBoundingClientRect().top +
+    (document.documentElement.scrollTop || document.body.scrollTop || window.scrollY)
 
-  return (direction === directions.DOWN) ? Math.floor(topOfNode) : Math.ceil(topOfNode);
+  if (document.querySelector(selectors.HEADER)) {
+    topOfNode-= document.querySelector(selectors.HEADER).offsetHeight
+  }
+
+  if (direction === directions.DOWN)
+    return Math.floor(topOfNode);
+  else
+    return Math.ceil(topOfNode);
 }
 
 function getNextParent(direction, parentComments) {
@@ -68,12 +82,12 @@ function getNextParent(direction, parentComments) {
 function goToNextParent(direction) {
   if  (scrolling)
     return;
-  const parentComments = Array.from(document.querySelectorAll('.sitetable.nestedlisting > .comment:not(.deleted)'));
+  const parentComments = Array.from(document.querySelectorAll(selectors.COMMENT));
   const targetComment = getNextParent(direction, parentComments);
   if (!targetComment)
     return;
 
-  targetComment.querySelector('.entry').click();
+  targetComment.querySelector(selectors.POST)
   animateScrollTo(getNodePos(targetComment), 400 * scrollSpeed);
 }
 
@@ -117,8 +131,8 @@ document.addEventListener('keydown', (event) => {
   if (event.target.value != null)
     return;
 
-  if (event.keyCode === 81) // Q
+  if (event.keyCode === keys.UP)
     goToNextParent(directions.UP);
-  else if (event.keyCode === 87) // W
+  else if (event.keyCode === keys.DOWN)
     goToNextParent(directions.DOWN);
 });
